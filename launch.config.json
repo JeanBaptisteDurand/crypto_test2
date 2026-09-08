@@ -1,0 +1,272 @@
+{
+  "$schema": "../../docs/launch.config.schema.json",
+  "slug": "ponsfund",
+  "token": {
+    "name": "PonsFund",
+    "symbol": "PONSFUND",
+    "tagline": "One vault. Every launch fills it, on-chain.",
+    "description": "PonsFund is a launch fund on Robinhood Chain. Every token launched through PonsFund sends the whole creator share of its swap fees to one shared treasury, and that destination is written into the contract at launch with no setter afterwards. Pons is Latin for bridge: the vault is the brand, the bridge is the mechanism between each launch and where its fees go.",
+    "chain": "robinhood",
+    "contractAddress": null,
+    "image": "/token.png",
+    "totalSupply": "100000000000",
+    "decimals": 18
+  },
+  "links": {
+    "x": "https://x.com/ponsfund",
+    "telegram": null,
+    "website": "https://ponsfund.pages.dev",
+    "clanker": null,
+    "dexscreener": null,
+    "basescan": null,
+    "uniswap": null
+  },
+  "tokenomics": [
+    {
+      "label": "Liquidity pool",
+      "percent": 100,
+      "note": "Locked in Uniswap V4 via Clanker"
+    }
+  ],
+  "roadmap": [
+    {
+      "phase": "Phase 1",
+      "title": "Launch",
+      "items": [
+        "$PONSFUND live on Robinhood Chain",
+        "Launchpad and treasury addresses published",
+        "First fees reach the vault"
+      ]
+    },
+    {
+      "phase": "Phase 2",
+      "title": "Fill the vault",
+      "items": [
+        "TOLL, TROLL and PONTIFEX launch through PonsFund",
+        "Each one sends its whole creator fee to the vault",
+        "Every fee readable on the explorer"
+      ]
+    },
+    {
+      "phase": "Phase 3",
+      "title": "Open the vault",
+      "items": [
+        "Live vault balance and holder count on the site",
+        "Full fee history",
+        "Open the launchpad to tokens outside the team"
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "q": "How does the vault work?",
+      "a": "Every token launched through PonsFund names the PonsFund treasury as the recipient of its creator-side swap fees, in the same transaction that creates the token. There is no setter for that afterwards, so the destination cannot be changed by anyone, including us. Every fee that reaches it is a transaction you can read on the explorer."
+    },
+    {
+      "q": "Which chain?",
+      "a": "Robinhood Chain. You need ETH on Robinhood Chain to buy. PonsFund is not affiliated with or endorsed by Robinhood."
+    },
+    {
+      "q": "Is the liquidity locked?",
+      "a": "Yes. A launch starts on a Pons V2 bonding curve and graduates into a full-range Uniswap V4 position that is permanently locked -- the locker exposes no withdrawal function."
+    },
+    {
+      "q": "Is there a tax?",
+      "a": "No transfer tax. Pons charges a 1% fee per swap, and it is the creator side of that fee that fills the vault. Buys in the first seconds of a launch also pay a steep snipe tax that decays quickly; that is Pons's, it applies to everyone, and it goes to the vault too."
+    },
+    {
+      "q": "How do I buy?",
+      "a": "Bridge ETH to Robinhood Chain, connect a wallet to the DEX, and swap for $PONSFUND. The contract address is in the footer once the token is live."
+    },
+    {
+      "q": "Who is behind it?",
+      "a": "A small team shipping the launchpad and its first tokens. The launchpad and treasury addresses are published before launch, so the flow of fees can be checked on-chain by anyone."
+    }
+  ],
+  "design": {
+    "background": "shader",
+    "shaderPreset": "dither",
+    "videoUrl": null,
+    "videoPoster": null,
+    "palette": {
+      "bg": "#3a2a1c",
+      "fg": "#fff1cf",
+      "accent": "#5cc45c",
+      "accent2": "#f7bb3d",
+      "muted": "#cba982",
+      "accent3": "#6bb2d9"
+    },
+    "font": {
+      "display": "Bricolage Grotesque",
+      "body": "Inter",
+      "mono": "JetBrains Mono",
+      "pixel": "Pixelify Sans"
+    },
+    "radius": "0rem",
+    "vibe": "16-bit RPG village: wood-brown ground, parchment cream, leaf green and treasure gold, square pixel frames",
+    "backgroundImage": "/bg-hero.webp"
+  },
+  "assets": {
+    "logo": "assets/user/logo.png",
+    "mascot3d": "/mascot.glb",
+    "bgVideo": null,
+    "heroImage": null,
+    "banner": null
+  },
+  "hero": {
+    "composition": "editorial-3d",
+    "mascot": "auto",
+    "headline": null,
+    "points": [
+      "every launch sends its whole creator fee to the vault",
+      "the destination is fixed at launch, with no setter",
+      "every fee is readable on the explorer"
+    ],
+    "coins": [
+      {
+        "image": "/coins/keystone.png",
+        "metal": "gold"
+      },
+      {
+        "image": "/coins/btc.png",
+        "metal": "gold"
+      },
+      {
+        "image": "/coins/eth.png",
+        "metal": "gold"
+      },
+      {
+        "image": "/coins/robinhood.png",
+        "metal": "silver"
+      }
+    ]
+  },
+  "strip": {
+    "title": "Launches paying into the vault",
+    "items": [
+      {
+        "name": "PonsFund",
+        "symbol": "PONSFUND",
+        "status": "scheduled",
+        "note": "this launch",
+        "url": null,
+        "image": "/token.png"
+      },
+      {
+        "name": "Toll",
+        "symbol": "TOLL",
+        "status": "scheduled",
+        "note": "after PONSFUND",
+        "url": null,
+        "image": null
+      },
+      {
+        "name": "Troll",
+        "symbol": "TROLL",
+        "status": "scheduled",
+        "note": "after PONSFUND",
+        "url": null,
+        "image": null
+      },
+      {
+        "name": "Pontifex",
+        "symbol": "PONTIFEX",
+        "status": "scheduled",
+        "note": "after PONSFUND",
+        "url": null,
+        "image": null
+      }
+    ]
+  },
+  "vault": {
+    "address": "0x7d85bF7a82470837A1d832e4fa503a7ebF20ca97",
+    "cycleHours": 24,
+    "firstPayoutAt": "2026-09-13T18:00:00Z",
+    "label": "The vault"
+  },
+  "platform": {
+    "launchpad": null,
+    "treasury": "0x0000000000000000000000000000000000000000",
+    "feeBps": 0,
+    "minVaultBps": 10000,
+    "maxCreatorTaxBps": 0,
+    "launchFeeEth": "0",
+    "launchesFromBlock": 37000000,
+    "tradingFeeBps": {
+      "swap": 100
+    },
+    "initialMarketCapEth": "5",
+    "pairedAssets": [
+      {
+        "symbol": "ETH",
+        "label": "ETH (native)",
+        "decimals": 18,
+        "addresses": {
+          "robinhood": "0x0000000000000000000000000000000000000000"
+        }
+      },
+      {
+        "symbol": "USDG",
+        "label": "USDG (stable)",
+        "decimals": 6,
+        "addresses": {
+          "robinhood": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168"
+        }
+      }
+    ]
+  },
+  "giveaway": {
+    "enabled": false,
+    "share": "pro rata to holdings",
+    "winners": 1,
+    "minHold": "TBC",
+    "snapshotBlock": null,
+    "drawTx": null,
+    "payoutTx": null
+  },
+  "platformLaunches": [
+    {
+      "slug": "toll",
+      "name": "Toll",
+      "symbol": "TOLL",
+      "feeToVaultBps": 10000,
+      "scheduledAt": null,
+      "contractAddress": null,
+      "url": null
+    },
+    {
+      "slug": "troll",
+      "name": "Troll",
+      "symbol": "TROLL",
+      "feeToVaultBps": 10000,
+      "scheduledAt": null,
+      "contractAddress": null,
+      "url": null
+    },
+    {
+      "slug": "pontifex",
+      "name": "Pontifex",
+      "symbol": "PONTIFEX",
+      "feeToVaultBps": 10000,
+      "scheduledAt": null,
+      "contractAddress": null,
+      "url": null
+    }
+  ],
+  "launch": {
+    "network": "base-sepolia",
+    "creatorWallet": "0x0000000000000000000000000000000000000000",
+    "creatorRewardBps": 10000,
+    "vault": {
+      "enabled": false,
+      "percentage": 0,
+      "lockupDays": 30,
+      "vestingDays": 90
+    },
+    "devBuy": {
+      "enabled": true,
+      "ethAmount": "0.01"
+    },
+    "initialMarketCapEth": "10"
+  }
+}

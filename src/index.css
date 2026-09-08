@@ -1,0 +1,429 @@
+@import "tailwindcss";
+/* Explicit scan set. Tailwind v4's automatic source detection was dropping files between builds here --
+   `h-8` on the strip logos vanished from the output at random, and the 32px mark rendered at its natural
+   768px until the next build put the class back. Naming the sources removes the guesswork. */
+@source "./**/*.{ts,tsx}";
+
+/* Palette and typography are injected at runtime from launch.config.json (src/lib/theme.ts).
+   These are the fallbacks so the page never flashes unstyled. */
+:root {
+  --bg: #3a2a1c;
+  --fg: #fff1cf;
+  --accent: #5cc45c;
+  --accent2: #f7bb3d;
+  --accent3: #6bb2d9;
+  --muted: #cba982;
+
+  /* Square by decision, not by omission: this is a 16-bit UI, so nothing is rounded. Depth comes from
+     hard rules and offset shadows instead of radii. */
+  --radius: 0px;
+  --radius-md: 0px;
+  --radius-sm: 0px;
+
+  /* The pixel unit the whole chrome is built on. Every rule, notch and drop shadow is a multiple of it,
+     which is what makes the frames read as sprite art rather than as thin CSS borders. */
+  --px: 2px;
+  --frame-in: color-mix(in srgb, var(--fg) 15%, transparent);
+  --frame-out: color-mix(in srgb, #000 48%, var(--bg));
+  --frame-drop: color-mix(in srgb, #000 40%, transparent);
+
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+  --font-pixel: "Silkscreen", ui-monospace, monospace;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-accent: var(--accent);
+  --color-accent2: var(--accent2);
+  --color-accent3: var(--accent3);
+  --color-muted: var(--muted);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+  --font-pixel: var(--font-pixel);
+  --radius-brand: var(--radius);
+  --radius-brand-md: var(--radius-md);
+  --radius-brand-sm: var(--radius-sm);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg);
+  color: var(--fg);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  /* A 4px grid, barely there: without it everything below the hero is one flat brown field, which is the
+     one thing a pixel-art page cannot be. Two gradients, no image, no repaint cost. */
+  background-image:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--fg) 3%, transparent) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--fg) 3%, transparent) 0 1px, transparent 1px 4px);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Everything below is in the components layer on purpose. This file used to sit outside every layer,
+   which put it *above* Tailwind's utilities: a `font-size` in .font-pixel swallowed every `text-*` on the
+   same element, and a `position: relative` in .dialogue quietly cancelled an `absolute`. In the layer,
+   a utility in the markup always wins, which is the only precedence that is predictable. */
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  /* Pixel face, used for every piece of chrome: wordmark, section titles, labels, buttons, nav.
+     Silkscreen replaced Pixelify Sans here for one reason: Pixelify's 2 and 8 are the same shape at UI
+     sizes ("PHASE 2" read as "PHASE 8"), which forced every figure out of the pixel face. Silkscreen draws
+     them apart, so numbers can live in it too and the arcade register covers the whole page.
+     Neither of these sets a font-size: this file is unlayered, so it beats Tailwind's utilities, and a
+     font-size here silently swallowed every `text-*` on the same element (a `font-pixel text-4xl` heading
+     came out at 17px). Sizes stay in the markup. */
+  .font-pixel {
+    font-family: var(--font-pixel);
+    letter-spacing: 0;
+  }
+
+  /* The wordmark only: the pixel half sits beside the grotesk half, and their cap heights differ (Pixelify
+     130 to Bricolage 132 at the same px size), so this puts them back on one cap line. Measured, not
+     eyeballed -- re-measure it if the pixel family ever changes again. */
+  .pixel-cap {
+    font-size: 1.015em;
+  }
+
+  /* Section eyebrows, tile labels, button text: same face, opened up because bitmap glyphs at small sizes
+     run together.
+     Two things never go in the pixel face, at any size, because Pixelify Sans draws them as one glyph:
+     figures (its 2 is its 8 -- "Every 24 hours" read as "Every 84 hours" at label size) and a capital Z
+     (its Z is its B is its 8 -- "Zero gatekeeping" read as "Bero gatekeeping" at 48px). Numbers sit in the
+     mono or display face beside the label; copy set in the pixel face is written without a capital Z. */
+  .label-pixel {
+    font-family: var(--font-pixel);
+    letter-spacing: 0.1em;
+  }
+
+  /* Panel: the site's card, drawn as a game UI plate. Three layers of depth, all square:
+     an inner light rule (the bevel catching the light), an outer dark rule (the frame), and a hard offset
+     drop shadow with no blur (the sprite sitting above the board). A 2px scanline sits in the fill so the
+     surface is not flat colour. */
+  .panel {
+    position: relative;
+    background:
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.055) 0 2px, transparent 2px 4px),
+      color-mix(in srgb, var(--fg) 8%, transparent);
+    box-shadow:
+      inset 0 0 0 var(--px) var(--frame-in),
+      0 0 0 var(--px) var(--frame-out),
+      6px 6px 0 0 var(--frame-drop);
+    transition: transform 90ms steps(2, end), box-shadow 90ms steps(2, end), background-color 160ms linear;
+  }
+
+  /* The cut corners of an 8-bit box: four squares of the page colour painted over the corners of both rules,
+     so the frame ends in a step instead of a right angle. */
+  .panel::before,
+  .pixel-frame::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--px) * -1);
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--bg), var(--bg)),
+      linear-gradient(var(--bg), var(--bg)),
+      linear-gradient(var(--bg), var(--bg)),
+      linear-gradient(var(--bg), var(--bg));
+    background-size: 6px 6px;
+    background-position: left top, right top, left bottom, right bottom;
+    background-repeat: no-repeat;
+  }
+
+  /* A gold rivet in the top-left, the way a frame ornament would sit. */
+  .panel::after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 4px;
+    height: 4px;
+    background: var(--accent2);
+    opacity: 0.7;
+  }
+
+  /* Movement in steps, not a glide: the hover lands like a sprite snapping to the next cell. */
+  /* Hover is the interactive colour, never the gold: gold is decor, and a brown surface that lights up
+     brown reads as nothing happening. */
+  .panel:hover {
+    transform: translate(-2px, -2px);
+    box-shadow:
+      inset 0 0 0 var(--px) color-mix(in srgb, var(--accent3) 55%, transparent),
+      0 0 0 var(--px) var(--frame-out),
+      8px 8px 0 0 var(--frame-drop);
+    background:
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.055) 0 2px, transparent 2px 4px),
+      color-mix(in srgb, var(--fg) 11%, transparent);
+  }
+
+  /* Frame without the plate: for anything that already has its own background (images, the mascot tile). */
+  .pixel-frame {
+    position: relative;
+    box-shadow:
+      inset 0 0 0 var(--px) var(--frame-in),
+      0 0 0 var(--px) var(--frame-out);
+  }
+
+  /* Glass: the light surfaces (hero chip, strip tiles, address chip). Same square frame as the panel, one
+     layer thinner, and still tinted with the cream rather than the accent -- an accent tint here put green
+     on every surface of the site at once. No corner notch: these sit over the dithered hero, where the
+     notch (four squares of the page colour) would print brown dots on the background instead of cutting
+     a corner. Square corners are already the right idiom. */
+  .glass {
+    position: relative;
+    background: color-mix(in srgb, var(--fg) 12%, transparent);
+    box-shadow:
+      inset 0 0 0 var(--px) color-mix(in srgb, var(--fg) 20%, transparent),
+      0 0 0 var(--px) var(--frame-out);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+  }
+
+  /* Arcade button: a solid key with a hard shadow that the press pushes into the board. Every transition is
+     stepped -- an eased translate reads as a web button, a stepped one reads as an input. */
+  /* No `text-transform: uppercase` here, and none on the pixel labels either: Pixelify Sans draws its
+     capital B as its 8 and its capital Z as both ("ROBINHOOD CHAIN" read as "ROGINHOOD CHAIN", "Zero
+     gatekeeping" as "Bero gatekeeping"). In sentence case those letters are unmistakable, and the face
+     still reads as a game UI -- which is how the consoles that used this lettering set it. */
+  .btn-pixel {
+    font-family: var(--font-pixel);
+    letter-spacing: 0.06em;
+    box-shadow:
+      0 0 0 var(--px) var(--frame-out),
+      5px 5px 0 0 var(--frame-drop);
+    transition: transform 80ms steps(1, end), box-shadow 80ms steps(1, end), filter 140ms linear;
+  }
+  .btn-pixel:hover {
+    filter: brightness(1.08);
+    transform: translate(-1px, -1px);
+    box-shadow:
+      0 0 0 var(--px) var(--frame-out),
+      7px 7px 0 0 var(--frame-drop);
+  }
+  .btn-pixel:active {
+    transform: translate(4px, 4px);
+    box-shadow:
+      0 0 0 var(--px) var(--frame-out),
+      1px 1px 0 0 var(--frame-drop);
+  }
+
+  /* Segmented bar, the RPG HP/XP gauge. Used by tokenomics instead of a donut: a share of a supply is a bar
+     of cells in this idiom, and cells can be counted, which a donut arc cannot. */
+  .hp-bar {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    box-shadow:
+      inset 0 0 0 var(--px) var(--frame-in),
+      0 0 0 var(--px) var(--frame-out);
+    background: color-mix(in srgb, #000 22%, transparent);
+  }
+  .hp-cell {
+    flex: 1 1 0;
+    height: 14px;
+    background: color-mix(in srgb, var(--fg) 9%, transparent);
+  }
+
+  /* Section separator: a dashed rule drawn on the 4px grid, with a gold square set in the middle of it.
+     Sections used to run into each other across a lot of empty brown; this gives the page the ruled
+     structure a game menu has. */
+  .pixel-rule {
+    position: relative;
+    height: 4px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--fg) 18%, transparent) 0 4px,
+      transparent 4px 12px
+    );
+  }
+  .pixel-rule::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -2px;
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    background: var(--accent2);
+    box-shadow: 0 0 0 4px var(--bg);
+  }
+
+  /* The RPG window frame: a gold band inside a dark outer band, a recessed inner rule, gold studs on the
+     four corners and a hard drop shadow. This is the frame a console draws around a portrait, and it is
+     what the section capsules sit in -- a plain .panel read as a web card with a picture in it. */
+  .rpg-frame {
+    position: relative;
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--accent2) 72%, #000),
+      0 0 0 9px var(--frame-out),
+      inset 0 0 0 2px color-mix(in srgb, #000 60%, var(--bg)),
+      inset 0 0 26px color-mix(in srgb, #000 42%, transparent),
+      10px 10px 0 0 var(--frame-drop);
+  }
+  /* The corner studs, painted over both bands so the frame reads as bolted together. */
+  .rpg-frame::after {
+    content: "";
+    position: absolute;
+    inset: -9px;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--accent2), var(--accent2)),
+      linear-gradient(var(--accent2), var(--accent2)),
+      linear-gradient(var(--accent2), var(--accent2)),
+      linear-gradient(var(--accent2), var(--accent2));
+    background-size: 9px 9px;
+    background-position: left top, right top, left bottom, right bottom;
+    background-repeat: no-repeat;
+  }
+
+  /* Section capsule: the plate that carries each section's illustration.
+     The pixelising is not a filter -- the art is served at 256px and blown up by the browser with
+     nearest-neighbour, which is what an old console did. A CSS filter over a full-size image would only
+     smooth it. */
+  .crt-scan {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.26) 0 2px, transparent 2px 4px),
+      radial-gradient(125% 125% at 50% 45%, transparent 52%, rgba(0, 0, 0, 0.5) 100%);
+    mix-blend-mode: multiply;
+  }
+  /* The glass of the tube: one soft highlight across the top left, and the phosphor bloom at the edges. */
+  .crt-glass {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(150deg, color-mix(in srgb, var(--fg) 14%, transparent) 0%, transparent 38%);
+    box-shadow: inset 0 0 32px color-mix(in srgb, #000 55%, transparent);
+  }
+
+  /* RPG dialogue box: the line the mascot says, sitting in the bottom of the capsule. Dark plate, bright
+     rule, pixel lettering, and the blinking marker that says a console is waiting for you to press a key. */
+  .dialogue {
+    background: color-mix(in srgb, #000 66%, var(--bg));
+    box-shadow:
+      inset 0 0 0 var(--px) color-mix(in srgb, var(--fg) 34%, transparent),
+      0 0 0 var(--px) var(--frame-out);
+  }
+
+  /* Pixel art stays pixel art: the logo, the coins and the strip marks are drawn on a grid, so they are
+     scaled with nearest-neighbour rather than smoothed into mush. */
+  .pixel-img {
+    image-rendering: pixelated;
+  }
+
+  /* Sprite idle: a two-frame bob, the way a character stands in an RPG. steps(2) is the point -- an eased
+     float reads as a web animation, two frames read as a sprite sheet. */
+  @keyframes sprite-idle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .sprite-idle {
+    animation: sprite-idle 1.2s steps(2, end) infinite;
+  }
+
+  /* The JRPG menu selector: the little arrow that sits beside the choice the cursor is on and nudges
+     towards it. Two frames, like the sprite bob -- this is the same idiom pointed sideways, and it is
+     what tells a player a row is a row they can press. */
+  @keyframes menu-cursor {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(3px); }
+  }
+  .menu-cursor {
+    animation: menu-cursor 1.2s steps(2, end) infinite;
+  }
+
+  @keyframes caret-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  /* The dialogue-box cursor. steps(1) so it snaps rather than fades. */
+  .caret {
+    animation: caret-blink 1s steps(1, end) infinite;
+  }
+
+  .text-gradient {
+    background: linear-gradient(120deg, var(--fg) 0%, var(--accent) 60%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .ring-accent {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent),
+      0 0 40px -10px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  @keyframes gradient-drift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .bg-gradient-animated {
+    background: radial-gradient(60% 80% at 20% 20%, color-mix(in srgb, var(--accent) 45%, transparent), transparent 60%),
+      radial-gradient(50% 70% at 80% 30%, color-mix(in srgb, var(--accent2) 45%, transparent), transparent 60%),
+      radial-gradient(70% 60% at 50% 100%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 60%),
+      var(--bg);
+    background-size: 200% 200%;
+    animation: gradient-drift 18s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Owner's decision: the decorative animations play for everyone (see RESPECT_REDUCED_MOTION in
+       TokenScene.tsx). Smooth scrolling is still dropped -- that one is a navigation aid, not decor, and
+       forcing it fights the browser. */
+    html { scroll-behavior: auto; }
+  }
+
+  /* Launches strip: seamless CSS marquee. The track holds the list an even number of times and translates by
+     exactly half, so the second copy lands where the first began.
+     Two things break that, and both were breaking it here:
+       - a flex `gap`: with N tiles the track is N*w + (N-1)*g wide, so half of it is short by g/2 and the
+         loop jumps by half a gap. The spacing is a margin on each tile instead, making the track N*(w+g).
+       - `padding-left` on the animated element: it is inside the width being halved. It lives on the
+         container now, which is not animated. */
+  .marquee {
+    overflow: hidden;
+    padding-left: 1.5rem;
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee var(--marquee-duration, 40s) linear infinite;
+  }
+  .marquee-copy {
+    display: flex;
+  }
+  /* Spacing as a margin on each tile, never a flex gap: the gap would sit inside the width being halved. */
+  .marquee-copy > * {
+    margin-right: 0.75rem;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+}

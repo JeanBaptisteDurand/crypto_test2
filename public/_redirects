@@ -1,0 +1,8 @@
+# ⚠⚠ THE TOKEN PAGE DEPENDS ON THIS LINE.
+#
+# `/token/0x…` is a real path served by the client router (src/lib/router.ts). Without this fallback
+# every in-app link still works and every REFRESH and every SHARED LINK is a 404 -- which breaks the
+# one thing a token page exists for. The 200 matters too: a 302 would change the URL in the bar.
+#
+# Cloudflare Pages reads this file from the build output. It must stay in `public/` so Vite copies it.
+/*    /index.html   200
