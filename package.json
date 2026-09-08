@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/bake-meta.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "deploy": "npm run build && npx wrangler pages deploy dist --project-name $(node -p \"require('./launch.config.json').slug\")",
