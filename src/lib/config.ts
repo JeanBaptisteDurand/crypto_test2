@@ -75,7 +75,6 @@ export interface LaunchConfig {
     x: string | null;
     telegram: string | null;
     website: string | null;
-    clanker: string | null;
     dexscreener: string | null;
     basescan: string | null;
     uniswap: string | null;
@@ -241,17 +240,22 @@ export function derivedLinks(c: LaunchConfig = config) {
     dexscreener: c.links.dexscreener ?? (ca && onBase ? `https://dexscreener.com/base/${ca}` : null),
     uniswap:
       c.links.uniswap ?? (ca && onBase ? `https://app.uniswap.org/swap?chain=base&outputCurrency=${ca}` : null),
-    clanker: c.links.clanker ?? (ca && chain.mainnet ? `https://www.clanker.world/clanker/${ca}` : null),
     x: c.links.x,
     telegram: c.links.telegram,
     website: c.links.website,
   };
 }
 
-/** Primary buy link: Uniswap if live, otherwise null (UI shows "Coming soon"). */
+/**
+ * Primary buy link: Uniswap if live, otherwise null (UI shows "Coming soon").
+ *
+ * ⚠ The Clanker fallback is gone with Clanker. On Robinhood Chain neither link is derived, because
+ * a launch trades on its Pons curve before it graduates and the deep links differ -- set
+ * `links.uniswap` explicitly once the token has a pool, or leave it null and let the UI say so.
+ */
 export function buyLink(c: LaunchConfig = config): string | null {
   const l = derivedLinks(c);
-  return l.uniswap ?? l.clanker ?? null;
+  return l.uniswap ?? null;
 }
 
 export const isLive = Boolean(config.token.contractAddress);
@@ -272,23 +276,12 @@ export function gmgnTokenUrl(address: string, chain: Chain = config.token.chain)
   return slug ? `https://gmgn.ai/${slug}/token/${address}` : null;
 }
 
-/** Chain ids, the one place the site maps its chain names onto the numbers Clanker and viem want. */
+/** Chain ids, the one place the site maps its chain names onto the numbers viem wants. */
 export const CHAIN_IDS: Record<Chain, number> = {
   base: CHAINS.base.id,
   "base-sepolia": CHAINS["base-sepolia"].id,
   robinhood: CHAINS.robinhood.id,
 };
-
-/**
- * The Clanker context stamped on every token launched through this site.
- *
- * It is also how the launches list finds them again: the deployer is now the launcher, not the platform
- * wallet, so `tokenAdmin` no longer identifies a PonsFund launch. This string does (`onchain.ts`).
- */
-export const PLATFORM_CONTEXT = {
-  interface: config.slug,
-  platform: config.slug,
-} as const;
 
 /**
  * Launchpad economics, with the defaults the launch form falls back to when the config leaves `platform`

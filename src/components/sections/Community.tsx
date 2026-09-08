@@ -1,4 +1,4 @@
-import { ExternalLink, Send, BarChart3, Search, Rocket } from "lucide-react";
+import {ExternalLink, Send, BarChart3, Search} from "lucide-react";
 import { CHAINS, config, derivedLinks } from "../../lib/config";
 import Section from "../ui/Section";
 
@@ -17,7 +17,6 @@ export default function Community() {
     { href: l.telegram, label: "Telegram", text: "The live room.", icon: Send },
     { href: l.dexscreener, label: "Dexscreener", text: "Chart and trades.", icon: BarChart3 },
     { href: l.basescan, label: CHAINS[config.token.chain].explorerName, text: "Verify the contract.", icon: Search },
-    { href: l.clanker, label: "Clanker", text: "Deployment record.", icon: Rocket },
   ].filter((c) => Boolean(c.href));
 
   return (

@@ -16,7 +16,6 @@
     "x": "https://x.com/ponsfund",
     "telegram": null,
     "website": "https://www.ponsfund.tech",
-    "clanker": null,
     "dexscreener": null,
     "basescan": null,
     "uniswap": null
@@ -25,7 +24,7 @@
     {
       "label": "Liquidity pool",
       "percent": 100,
-      "note": "Locked in Uniswap V4 via Clanker"
+      "note": "Locked in Uniswap V4 at graduation"
     }
   ],
   "roadmap": [

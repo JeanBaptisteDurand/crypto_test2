@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CHAINS, config } from "./config";
 
 /**
- * The wallet, in the smallest form that can sign a Clanker deployment.
+ * The wallet, in the smallest form that can sign a launch.
  *
  * Injected provider only (MetaMask and anything else that puts an EIP-1193 object on `window.ethereum`).
  * No WalletConnect: it is a project id, a relay, a modal and ~200 KB of bundle, and this page has one
@@ -10,7 +10,7 @@ import { CHAINS, config } from "./config";
  *
  * Nothing here imports viem. Connecting, reading the chain and switching chains are four `request` calls
  * against the provider the browser already has, so the library that signs stays in the lazily loaded
- * deploy chunk (`clanker.ts`) with the SDK, and a visitor who never opens the form never downloads it.
+ * deploy chunk (`pons.ts`), and a visitor who never opens the form never downloads it.
  */
 
 export const launchChainInfo = CHAINS[config.token.chain];

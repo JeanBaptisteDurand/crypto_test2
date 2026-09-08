@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { BarChart3, Rocket, Search, Send } from "lucide-react";
+import { BarChart3, Search, Send } from "lucide-react";
 import { CHAINS, config, derivedLinks } from "../../lib/config";
 import ShaderBackground from "../backgrounds/ShaderBackground";
 import CopyAddress from "../ui/CopyAddress";
@@ -18,8 +18,19 @@ function XIcon({ className = "" }: { className?: string }) {
  * never fully hidden and never fully exposed.
  *
  * Everything a footer owes the reader lives inside it: the social links, the contract address, the
- * disclaimer, the model attribution and the copyright. The lower half of the band fades to the page
- * colour so all of that sits on a readable ground while Keystone keeps the top half.
+ * model attribution and the copyright. The lower half of the band fades to the page colour so all of
+ * that sits on a readable ground while Keystone keeps the top half.
+ *
+ * ⚠ THE RISK DISCLAIMER WAS REMOVED ON THE OWNER'S EXPLICIT INSTRUCTION (2026-09-08). It said the
+ * token has no intrinsic value, that the vault may hold nothing, that you can lose everything, and
+ * that PonsFund is not affiliated with Robinhood. Kit rule 7 requires a disclaimer in the footer,
+ * so this is a deliberate override of that rule and not an oversight -- do not re-add it without
+ * asking, and do not remove this note, which is the only remaining trace of the decision.
+ *
+ * ⛔ THE MODEL ATTRIBUTION BELOW IS NOT OPTIONAL. The chest is CC-BY-4.0 and BRIEF.md §"Le coffre 3D"
+ * records that attribution is mandatory and must be visible on the published site. Removing it while
+ * still shipping the model is a licence violation. The way to drop the credit is to drop the model:
+ * set `hero.mascot: "coin"` for the procedural coin, or supply a model we own.
  */
 export default function Footer() {
   const t = config.token;
@@ -29,7 +40,6 @@ export default function Footer() {
     { href: l.telegram, label: "Telegram", icon: Send },
     { href: l.dexscreener, label: "Dexscreener", icon: BarChart3 },
     { href: l.basescan, label: CHAINS[t.chain].explorerName, icon: Search },
-    { href: l.clanker, label: "Clanker", icon: Rocket },
   ].filter((x) => Boolean(x.href));
 
   return (
@@ -115,16 +125,7 @@ export default function Footer() {
 
           <div aria-hidden className="pixel-rule my-8" />
 
-          <div className="flex flex-col gap-6 md:flex-row md:justify-between">
-            {/* The template's wording called this a meme token that exists for entertainment, which
-                contradicts a site describing a fee mechanism. Same protections, stated honestly. */}
-            <p className="max-w-xl text-xs leading-relaxed text-muted">
-              ${t.symbol} is a crypto token with no intrinsic value and no expectation of financial return.
-              What the vault holds depends entirely on the trading activity of the tokens paying into it,
-              and may be nothing. Crypto assets are volatile and you can lose everything you put in. Do
-              your own research and never invest more than you can afford to lose. Nothing here is
-              financial advice. PonsFund is not affiliated with, or endorsed by, Robinhood.
-            </p>
+          <div className="flex flex-col gap-6 md:flex-row md:justify-end">
             <div className="flex flex-col gap-3 text-[11px] leading-relaxed text-muted md:items-end md:text-right">
               <p className="max-w-xs">
                 Treasure chest model by{" "}
@@ -148,7 +149,7 @@ export default function Footer() {
                 .
               </p>
               <p>
-                © {new Date().getFullYear()} {t.name}. Deployed on {CHAINS[t.chain].label} via Clanker.
+                © {new Date().getFullYear()} {t.name}. Deployed on {CHAINS[t.chain].label}.
               </p>
             </div>
           </div>

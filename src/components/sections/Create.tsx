@@ -550,7 +550,21 @@ export default function Create() {
                 aria-expanded={advanced}
                 className="flex w-full items-center gap-3 text-left"
               >
-                <span className="label-pixel flex-1 text-[13px] text-fg">Advanced options</span>
+                {/* The closed row used to say only "Advanced options", so nothing told a launcher that
+                    the developer buy -- the one number most of them want to set -- was behind it. The
+                    subtitle and the moving marker are the same idiom as the form's own disclosure. */}
+                <span
+                  aria-hidden
+                  className={`font-mono text-[15px] leading-none text-accent2 ${advanced ? "" : "menu-cursor"}`}
+                >
+                  {advanced ? "\u25BE" : "\u25B8"}
+                </span>
+                <span className="flex-1">
+                  <span className="label-pixel block text-[13px] text-fg">Advanced options</span>
+                  <span className="mt-1 block font-mono text-[11px] text-muted">
+                    how much you buy at launch, and snipe protection
+                  </span>
+                </span>
                 <ChevronDown
                   className={`h-4 w-4 shrink-0 text-accent3 transition-transform ${advanced ? "rotate-180" : ""}`}
                 />
@@ -676,8 +690,12 @@ export default function Create() {
                 </>
               ) : (
                 <>
-                  <p className="font-mono text-[11px] text-muted">
-                    {wallet.address?.slice(0, 6)}…{wallet.address?.slice(-4)} on {explorer.label}
+                  <p className="label-pixel flex items-center gap-2 text-[12px] text-accent">
+                    <span aria-hidden className="inline-block h-2 w-2 shrink-0 bg-accent" />
+                    Wallet connected
+                  </p>
+                  <p className="mt-2 font-mono text-[11px] text-muted">
+                    {wallet.address?.slice(0, 6)}…{wallet.address?.slice(-4)} · {explorer.label}
                   </p>
                   <button
                     type="button"
