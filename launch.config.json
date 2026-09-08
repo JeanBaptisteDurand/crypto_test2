@@ -179,13 +179,13 @@
     ]
   },
   "vault": {
-    "address": "0x7d85bF7a82470837A1d832e4fa503a7ebF20ca97",
+    "address": "0x1C15359670c201812D4AE652BB0A232Ab70D9308",
     "cycleHours": 24,
     "firstPayoutAt": "2026-09-13T18:00:00Z",
     "label": "The vault"
   },
   "platform": {
-    "launchpad": null,
+    "launchpad": "0xa9feA715EcDD7D3453D8087d60FfD791d809b20e",
     "treasury": "0x0000000000000000000000000000000000000000",
     "feeBps": 0,
     "minVaultBps": 10000,

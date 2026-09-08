@@ -14,13 +14,18 @@ import {IPonsV2Factory, IPonsV2LaunchAndBuy, IPonsFeeEscrow} from "../src/interf
  * Robinhood Chain has a public testnet -- chain 46630, with an RPC, an explorer and a faucet that
  * all answer. Nothing we need is deployed on it. Checked with `eth_getCode` on 2026-09-08:
  *
- *   Pons V2 factory        absent
- *   Uniswap V4 PoolManager absent   (Pons V2 graduates into a V4 pool, so this is load-bearing)
- *   Permit2                present
+ *   Pons V2 factory, router, fee escrow, meme hook   ALL ABSENT
+ *   Uniswap V4 PoolManager (0x8366a39C…)              present, 24 009 bytes
+ *   Permit2                                           present, 9 152 bytes
  *
- * Standing the stack up there would mean deploying Uniswap V4 core and periphery as well, and would
- * then only ever exercise a *copy* of Pons whose behaviour can drift from the real one. A fork
- * reaches the actual factory, the actual curves and the actual escrow, for free.
+ * ⚠ An earlier version of this note claimed Uniswap V4 was absent too. That was wrong: it was
+ * checked at the canonical `0x498581fF…`, and Robinhood Chain uses a different address. V4 is there.
+ * The blocker is Pons itself, which is absent, and Pons documents no testnet deployment.
+ *
+ * Standing the stack up there would mean deploying Pons's nine V2 contracts ourselves -- and mining
+ * an address for `PonsV2MemeHook`, since Uniswap V4 encodes a hook's permissions in its address
+ * bits. At the end of that you exercise a *copy* of Pons whose behaviour can drift. A fork reaches
+ * the actual factory, the actual curves and the actual escrow, for free.
  *
  * ## ⚠ These tests SKIP when the proxy is not running
  *
@@ -35,8 +40,8 @@ contract ForkTest is Test {
     IPonsV2Factory constant FACTORY = IPonsV2Factory(0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e);
     /// Pons's launch-and-buy periphery. 4 416 bytes.
     IPonsV2LaunchAndBuy constant ROUTER = IPonsV2LaunchAndBuy(0xe33E9E479dF8802cb0866d5d05258bEc4cF62948);
-    /// The production fee destination. An EOA holding 0.6048 ETH when this was written.
-    address constant RECIPIENT = 0x7d85bF7a82470837A1d832e4fa503a7ebF20ca97;
+    /// The production fee destination, matching `script/Deploy.s.sol`. An EOA with nonce 0.
+    address constant RECIPIENT = 0x1C15359670c201812D4AE652BB0A232Ab70D9308;
 
     bool forked;
     PonsFundTreasury treasury;

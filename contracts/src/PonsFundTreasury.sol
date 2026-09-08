@@ -57,9 +57,12 @@ contract PonsFundTreasury {
     /**
      * The one and only destination. Immutable, so this is the whole trust statement.
      *
-     * Set to `0x7d85bF7a82470837A1d832e4fa503a7ebF20ca97` on Robinhood Chain -- an externally owned
-     * account, checked on 2026-09-08. It is passed in rather than hardcoded so the fork tests can
-     * deploy against an address they control.
+     * Set to `0x1C15359670c201812D4AE652BB0A232Ab70D9308` on Robinhood Chain -- an externally owned
+     * account with nonce 0, checked on 2026-09-08. It is passed in rather than hardcoded so the fork
+     * tests can deploy against an address they control.
+     *
+     * ⚠ An earlier revision of this comment named `0x7d85bF7a…ca97`, the owner's first choice,
+     * changed before deployment. The authority is `script/Deploy.s.sol`, never this sentence.
      */
     address public immutable RECIPIENT;
 

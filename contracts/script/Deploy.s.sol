@@ -32,7 +32,7 @@ contract Deploy is Script {
      * mistake away from a permanent one.
      */
     function recipient() internal view returns (address) {
-        return vm.envOr("PONSFUND_RECIPIENT", 0x7d85bF7a82470837A1d832e4fa503a7ebF20ca97);
+        return vm.envOr("PONSFUND_RECIPIENT", 0x1C15359670c201812D4AE652BB0A232Ab70D9308);
     }
 
     function run() external {
