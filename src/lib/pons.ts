@@ -72,6 +72,37 @@ export interface LaunchForm {
 
 export class LaunchConfigError extends Error {}
 
+/**
+ * `RefundFailed()` on Pons's router, which the deployed launchpad cannot survive.
+ *
+ * ⛔⛔ A developer buy larger than the curve can absorb makes Pons fill the curve, graduate it, and
+ * refund the overshoot **to its caller, which is the launchpad** -- not to the recipient it was
+ * handed. The launchpad deployed at `platform.launchpad` declares no `receive()`, so that transfer
+ * reverts and the whole launch unwinds. The ceiling measured on a fork is about 4.2424 ETH.
+ *
+ * The contract is immutable, so this cannot be fixed on chain without a redeploy. Until then the
+ * selector is caught here and turned into a sentence that says what to do, instead of the raw
+ * "reverted with the following signature:" a visitor would otherwise get.
+ *
+ * ⚠ Delete this once a launchpad with a `receive()` is deployed and `platform.launchpad` points at
+ * it -- keeping it would explain a limit that no longer exists.
+ */
+const REFUND_FAILED = "0xf0c49d44";
+
+function friendlyRevert(e: unknown): string | null {
+  const text = JSON.stringify(
+    e && typeof e === "object" ? { ...(e as object), m: String((e as Error)?.message ?? "") } : String(e),
+  );
+  if (text.includes(REFUND_FAILED)) {
+    return (
+      "That developer buy is larger than the curve can take, so it would graduate the token in the " +
+      "same transaction — which this launchpad cannot complete. Lower it to about 4 ETH, or launch " +
+      "with no developer buy and buy straight after. Nothing was signed."
+    );
+  }
+  return null;
+}
+
 /** Pons's launch configuration to use. One config today; exposed so it is not a bare literal below. */
 const LAUNCH_CONFIG_ID = 0n;
 
@@ -209,6 +240,22 @@ function valueFor(fee: bigint, pairToken: string, devBuy: bigint): bigint {
 export async function simulate(form: LaunchForm, launcher: `0x${string}`) {
   const { params, pairToken, devBuy } = buildLaunch(form);
   const fee = await launchFee();
+  try {
+    return await simulateRaw(params, pairToken, devBuy, fee, launcher);
+  } catch (e) {
+    const friendly = friendlyRevert(e);
+    if (friendly) throw new LaunchConfigError(friendly);
+    throw e;
+  }
+}
+
+async function simulateRaw(
+  params: ReturnType<typeof buildLaunch>["params"],
+  pairToken: `0x${string}`,
+  devBuy: bigint,
+  fee: bigint,
+  launcher: `0x${string}`,
+) {
   return publicClient.simulateContract({
     address: launchpadAddress as `0x${string}`,
     abi: LAUNCHPAD_ABI,
@@ -223,15 +270,21 @@ export async function simulate(form: LaunchForm, launcher: `0x${string}`) {
 export async function launch(form: LaunchForm, signer: Signer): Promise<`0x${string}`> {
   const { params, pairToken, devBuy } = buildLaunch(form);
   const fee = await launchFee();
-  return signer.writeContract({
+  try {
+    return await signer.writeContract({
     address: launchpadAddress as `0x${string}`,
     abi: LAUNCHPAD_ABI,
     functionName: "launch",
     args: [params, LAUNCH_CONFIG_ID, pairToken, devBuy, 0n],
-    value: valueFor(fee, pairToken, devBuy),
-    chain: launchChain,
-    account: signer.account,
-  });
+      value: valueFor(fee, pairToken, devBuy),
+      chain: launchChain,
+      account: signer.account,
+    });
+  } catch (e) {
+    const friendly = friendlyRevert(e);
+    if (friendly) throw new LaunchConfigError(friendly);
+    throw e;
+  }
 }
 
 /** Wait for the block and pull the launched token out of our launchpad's own event. */

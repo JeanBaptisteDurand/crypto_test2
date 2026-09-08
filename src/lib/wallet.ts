@@ -148,10 +148,21 @@ export function useWallet(): WalletState {
   };
 }
 
-/** Wallet errors arrive in four shapes. This picks the one line worth showing. */
+/**
+ * Wallet errors arrive in four shapes. This turns one into a sentence a visitor can act on.
+ *
+ * ⛔ IT USED TO CUT AT THE FIRST NEWLINE, WHICH THREW AWAY THE ONLY USEFUL PART. viem's
+ * `shortMessage` for a revert whose custom error is not in our hand-written ABI is multi-line, and
+ * its FIRST line ends with "reverted with the following signature:" -- the selector is on line two.
+ * So the form showed "The launch did not go through. The contract function \"launch\" reverted with
+ * the following signature:" and stopped, telling the visitor nothing, not even a selector they could
+ * look up. It affected every revert not in `LAUNCHPAD_ABI`, not one case.
+ *
+ * Joining the lines keeps the selector inside the 220 characters.
+ */
 export function walletError(e: unknown): string {
   const err = e as { code?: number; shortMessage?: string; details?: string; message?: string };
   if (err?.code === 4001) return "Rejected in the wallet.";
   const raw = err?.shortMessage || err?.details || err?.message || String(e);
-  return raw.split("\n")[0].slice(0, 220);
+  return raw.replace(/\s*\n+\s*/g, " ").trim().slice(0, 220);
 }
