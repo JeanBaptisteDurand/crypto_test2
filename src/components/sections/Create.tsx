@@ -19,6 +19,7 @@ import {
 } from "../../lib/drafts";
 import { invalidateChainLaunches } from "../../lib/onchain";
 import { subscribeOpenCreate } from "../../lib/openCreate";
+import { logoUploadAvailable, uploadLogo } from "../../lib/upload";
 import { useWallet, walletError } from "../../lib/wallet";
 import Section from "../ui/Section";
 
@@ -122,6 +123,9 @@ export default function Create() {
   const [deployed, setDeployed] = useState<{ address: string; symbol: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+  /** null while the probe is out, then whether this deployment can actually store an image. */
+  const [canUpload, setCanUpload] = useState<boolean | null>(null);
+  const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const wallet = useWallet();
@@ -134,6 +138,18 @@ export default function Create() {
 
   // Closed until asked for: the hero's Create your own, the navbar's Make one, or a link to #create.
   useEffect(() => subscribeOpenCreate(() => setOpen(true)), []);
+
+  /* Asked once, when the form opens. The drop zone only promises an upload if something answered
+     yes -- offering one on a static host produces "the upload failed (405)" shown to somebody who
+     did nothing wrong. */
+  useEffect(() => {
+    if (!open || canUpload !== null) return;
+    let live = true;
+    void logoUploadAvailable().then((ok) => live && setCanUpload(ok));
+    return () => {
+      live = false;
+    };
+  }, [open, canUpload]);
 
   // Opening the form is the signal that this visitor might sign something. The deploy module arrives
   // then, not on page load, and the Launch button reports "Preparing…" for the moment it takes.
@@ -204,6 +220,26 @@ export default function Create() {
       return;
     }
     setMark(url);
+
+    /* ⛔⛔ THE PREVIEW IS NOT THE LAUNCH. `mark` is a 96px thumbnail in this browser's storage; what
+       reaches the chain is `imageUrl`, a string with no setter afterwards. Without this upload the
+       two are unrelated and a launcher who dropped a file would ship a token with no picture while
+       looking at their logo on screen. */
+    if (!canUpload) return;
+    setUploading(true);
+    try {
+      const { url: hosted } = await uploadLogo(file);
+      setImageUrl(hosted);
+    } catch (e) {
+      /* Cleared, never left half-written: the URL is permanent, so believing it worked is worse
+         than knowing it did not. */
+      setImageUrl("");
+      setImageError(
+        `${e instanceof Error ? e.message : "the upload failed"}. Nothing was uploaded, and the image link has been left empty rather than pointing at something that does not exist.`,
+      );
+    } finally {
+      setUploading(false);
+    }
   };
 
   const saveDraft = () => {
@@ -375,9 +411,13 @@ export default function Create() {
                     tabIndex={0}
                     className="pixel-frame flex flex-1 cursor-pointer flex-col justify-center bg-bg/40 px-4 py-5 text-left transition hover:bg-accent3/[0.10]"
                   >
-                    <span className="label-pixel text-[12px] text-fg">Drop an image, or click to choose</span>
+                    <span className="label-pixel text-[12px] text-fg">
+                      {uploading ? "Uploading…" : "Drop an image, or click to choose"}
+                    </span>
                     <span className="mt-1.5 font-mono text-[11px] text-muted">
-                      PNG, JPEG, GIF, WebP or AVIF · 4 MB max
+                      {canUpload === false
+                        ? "PNG, JPEG, GIF or WebP · preview only on this host"
+                        : "PNG, JPEG, GIF or WebP · 4 MB max · hosted here"}
                     </span>
                   </div>
                   <input
@@ -416,9 +456,9 @@ export default function Create() {
                   </span>
                 </label>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
-                  The image above is stored in this browser only. What goes on chain is a URL, not a file,
-                  and this site has nowhere to upload one — so without an https link here the token
-                  launches with no image at all.
+                  {canUpload
+                    ? "Dropping a file above uploads it here and fills this in. What goes on chain is this URL, not the file, and it cannot be changed after launch — so an image that stops loading stops loading forever."
+                    : "What goes on chain is a URL, not a file, and this host cannot store one — so without an https link here the token launches with no image at all. The picture above is a preview in this browser."}
                 </p>
               </div>
 

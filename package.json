@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "deploy": "npm run build && npx wrangler pages deploy dist --project-name $(node -p \"require('./launch.config.json').slug\")",
-    "start": "serve -s dist -l ${PORT:-3000}"
+    "start": "node server.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
@@ -18,7 +18,6 @@
     "motion": "^12.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "serve": "^14.2.6",
     "three": "^0.185.1",
     "viem": "^2.56.3"
   },

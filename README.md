@@ -69,17 +69,51 @@ Point a Railway service at this repo. Nixpacks reads `railway.json`, runs `npm r
 Cloudflare Pages and is **ignored by Railway** — two hosts, two mechanisms, both present so that
 whichever is used the other is inert rather than wrong. Drop the `-s` and every token link 404s.
 
+### ⛔⛔ Attach a Volume before accepting a single upload
+
+The service stores token logos on disk. **Railway's container filesystem is ephemeral** — every
+redeploy starts from the image and anything written at runtime is gone.
+
+A token's logo URL is written into its constructor and **there is no setter**. If the file behind it
+disappears, that token is imageless forever, on this site and on gmgn, and nothing can repair it.
+
+In the Railway service: **Volumes → Add Volume → mount path `/data`**.
+
+The server refuses to advertise uploads when the directory is not writable, so a missing volume
+shows up as "no upload available" — a plain URL field instead of a drop zone — rather than as tokens
+whose images quietly vanish next week.
+
 ### Environment variables
 
-None are required. One is worth setting once the domain is known:
+| | | |
+| --- | --- | --- |
+| `SITE_URL` | **set this** | `https://www.ponsfund.tech`. The public origin. |
+| `LOGO_DIR` | optional | Where logos are stored. Defaults to `/data/logos`, which is the volume mount above. |
+| `PORT` | injected | Railway sets it. |
 
-| | |
-| --- | --- |
-| `SITE_URL` | This deployment's own URL, e.g. `https://ponsfund.up.railway.app`. Used for `og:url`, `og:image` and `<link rel=canonical>`. |
+⛔ `SITE_URL` is not cosmetic. It is the origin baked into every uploaded logo's URL **and written on
+chain**. Left unset, the server falls back to `RAILWAY_PUBLIC_DOMAIN` — and a launch made while the
+site was on a `*.up.railway.app` preview domain keeps that URL forever, even after the custom domain
+is attached. Set it before the first launch, not after.
 
-Railway sets `RAILWAY_PUBLIC_DOMAIN` by itself and the build falls back to it, so the common case
-needs nothing. ⚠ Without either, it falls back to `links.website` in the config, which is the
-**Cloudflare** address — every crawler would then read this deployment as a duplicate of that one.
+Without either, uploads are refused outright rather than minting a link the server cannot promise.
+
+### The logo upload
+
+`POST /api/logo` stores an image and returns an absolute URL on this domain; `GET /api/logo` is the
+probe the form uses to decide whether to draw a drop zone at all.
+
+⚠⚠ The probe **reads the JSON body, not the status code**. On a host where this server is not
+running, `/api/logo` falls through to the SPA rule and answers 200 with the home page's HTML — a
+client trusting the status would show a drop zone that cannot work. (Credit to OpenPons, whose
+`upload.ts` flags exactly this trap; ours is modelled on it.)
+
+⛔ **SVG is refused, on purpose.** An SVG is a document that can carry `<script>`, served from our own
+origin — stored XSS against everyone who opens a token page. The type is sniffed from the file's own
+magic bytes, never from the `Content-Type` header, which the uploader writes.
+
+Files are content-addressed (sha256), so the same image twice is one file and nothing a caller sends
+becomes part of a path.
 
 ### Why the build has a third step
 
@@ -133,5 +167,7 @@ crankable by a stranger, into the same wallet.
 - `$PONSFUND` itself is not launched — `token.contractAddress` is null and the site shows
   "Coming soon".
 - The hero's countdown still counts down to a distribution that no contract performs.
-- `og:title` and `og:description` are empty in the built HTML and filled at runtime by JS, so shared
-  links preview without a title. Fixing it needs prerendering or an edge function.
+- Link previews carry ONE card for the whole site. A per-token preview needs HTML generated per
+  request; `server.mjs` is the natural place, but it is not done.
+- Uploaded logos are never garbage-collected. An image uploaded by someone who then abandoned the
+  form stays on the volume forever.
