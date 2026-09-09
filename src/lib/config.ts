@@ -44,6 +44,15 @@ export interface PlatformConfig {
    * describe the chain rather than this launch, and they live in `lib/pons.ts`.
    */
   launchpad?: string | null;
+  /**
+   * Turns the launch form off while leaving everything else readable.
+   *
+   * ⚠ SEPARATE FROM A NULL `launchpad`, ON PURPOSE. Nulling the address also stops launches, but it
+   * makes the form say "not deployed yet" -- which would be a lie once a launchpad IS on chain. Two
+   * different situations deserve two different sentences, and a visitor who reads "not deployed"
+   * about a deployed contract has been told something false.
+   */
+  launchesPaused?: boolean;
   treasury: string;
   feeBps: number;
   minVaultBps: number;
@@ -290,6 +299,7 @@ export const CHAIN_IDS: Record<Chain, number> = {
  */
 export const platform: PlatformConfig = {
   launchpad: null,
+  launchesPaused: false,
   treasury: ZERO_ADDRESS,
   feeBps: 1000,
   minVaultBps: 5000,

@@ -184,7 +184,8 @@
     "label": "The vault"
   },
   "platform": {
-    "launchpad": "0xa9feA715EcDD7D3453D8087d60FfD791d809b20e",
+    "launchpad": null,
+    "launchesPaused": true,
     "treasury": "0x0000000000000000000000000000000000000000",
     "feeBps": 0,
     "minVaultBps": 10000,

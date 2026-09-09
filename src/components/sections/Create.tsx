@@ -198,7 +198,9 @@ export default function Create() {
     ⚠ Note this is `isRealAddress`, which rejects the zero address. That is right for both of these
     and wrong for a pair asset, where zero means native ETH. See `NATIVE_PAIR` in `lib/pons.ts`.
   */
-  const configured = isRealAddress(config.vault?.address) && isRealAddress(platform.launchpad);
+  /* ⚠ Not named `deployed`: that is already the token this form just launched, a few lines up. */
+  const addressesReady = isRealAddress(config.vault?.address) && isRealAddress(platform.launchpad);
+  const configured = addressesReady && !platform.launchesPaused;
   const formOk = nameOk && symbolOk && Boolean(pairedToken);
 
   const pairedLabel = assets.find((a) => a.address === pairedToken)?.symbol ?? "—";
@@ -652,11 +654,14 @@ export default function Create() {
             <div className="panel p-5">
               {!configured ? (
                 <p className="label-pixel text-[12px] leading-[1.6] text-accent2">
-                  {/* Names the one that is actually missing. "The treasury is not published" while the
-                      treasury is set and the launchpad is not sends a reader to check the wrong key. */}
-                  {isRealAddress(config.vault?.address)
-                    ? "The PonsFund launchpad is not deployed yet, so this form cannot launch anything."
-                    : "The treasury address is not published yet, so this form cannot launch anything."}{" "}
+                  {/* Three different reasons, three different sentences. Naming the wrong one sends a
+                      reader to check the wrong thing -- and calling a deployed contract "not deployed"
+                      is simply untrue. */}
+                  {platform.launchesPaused
+                    ? "Launches are paused while the launchpad is being updated. Nothing you fill in here is lost."
+                    : isRealAddress(config.vault?.address)
+                      ? "The PonsFund launchpad is not deployed yet, so this form cannot launch anything."
+                      : "The treasury address is not published yet, so this form cannot launch anything."}{" "}
                   Save a draft in the meantime.
                 </p>
               ) : wallet.status === "no-wallet" ? (
