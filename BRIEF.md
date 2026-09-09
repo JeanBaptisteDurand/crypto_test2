@@ -466,49 +466,18 @@ Couleurs réelles de la mascotte (mesurées hors zone transparente) : crème `#f
 - **Favicon / monogramme** : le P émeraude seul.
 - **Bannière X** : Keystone agrandi à gauche sur le fond `#16111a`, une seule ligne de texte à droite, hors zone morte.
 
-### Le coffre 3D — provenance et licence
+### Le coffre 3D — provenance
 
-*Treasure Chest Animation*, par **Matt Harris** (https://sketchfab.com/MattHarris86),
-source : https://sketchfab.com/3d-models/treasure-chest-animation-9a0e32639f5b4b6eaed18532718c1085
+> **Corrigé le 2026-09-09.** Cette section attribuait le modèle à *Treasure Chest Animation* de
+> Matt Harris (Sketchfab), sous CC-BY-4.0, et en déduisait qu'une attribution visible était
+> obligatoire. **Le propriétaire indique que c'est faux** : le coffre n'est pas ce modèle. Le crédit
+> a donc été retiré du footer — créditer quelqu'un qui n'a pas fait l'asset est une erreur en soi.
+>
+> ⚠ Ne pas remettre l'attribution en s'appuyant sur une ancienne version de ce fichier.
+>
+> ⚠ Si un modèle tiers est un jour déposé dans `assets/user/`, vérifier sa licence avant de le
+> livrer : le footer n'a plus d'emplacement d'attribution, et un asset CC-BY en exigerait un.
 
-> **Licence : CC-BY-4.0.** L'attribution est **obligatoire** et doit être **visible sur le site publié**.
-> Ligne à mettre dans le footer, avant tout `/ship` :
-> *« Treasure chest model by Matt Harris, CC BY 4.0. »* avec le lien vers le modèle.
-> Le footer est hors du périmètre de `/build-hero` : **à faire dans `/build-sections`.**
-
-Le modèle contient un rig et une animation unique `HarrisChestClips` de 5,4 s qui concatène plusieurs
-prises : ouverture (0 → 0,767 s), refermeture, secousses, ouverture partielle. Seule la première prise est
-jouée, sa fin détectée au premier pic de rotation du contrôleur `CTRL_Lid`.
-
-**Ses pistes sont bakées en coordonnées monde** : pendant l'ouverture, `chest_base_g` — la base — tourne de
-180° et se déplace de 137 unités. C'est le mouvement d'ensemble d'une démo tournante, pas une ouverture.
-On ne peut donc pas filtrer les pistes par node : le clip entier est joué, et un groupe stabilisateur annule
-la transformation de la base à chaque frame (mesurée relativement à sa pose à t=0). Il ne reste à l'écran
-que le mouvement relatif : le couvercle qui s'ouvre.
-
-Pas de vidéo.
-
----
-
-## 5. Le site — sections dans l'ordre
-
-**État au 2026-09-06** : hero et sections construites. `About` est devenu **How it works** (les quatre
-temps du mécanisme), **The vault** et **Giveaway** ont été créés. La `Roadmap` est conservée bien que le
-plan de §5 ne la liste pas : son contenu est réel et vient du config. **Giveaway ne s'affiche pas** tant que
-`giveaway.enabled` est `false`, c'est-à-dire tant que le pot n'est pas tranché (§10).
-
-1. **Hero** — voir §3, plus un countdown vers la première distribution et un teaser du giveaway.
-2. **How it works** — les quatre temps : un token est lancé → sa part créateur remplit le coffre → 24 h → partage pro rata. Trois phrases, pas plus.
-3. **The vault** — solde du coffre, prochaine distribution, nombre de porteurs. **Placeholders explicites tant que rien n'est live** (`vault.address: null` s'affiche en « not yet »).
-4. **Bande des launches** — voir §8.
-5. **Tokenomics** — supply Clanker par défaut, répartition de la part créateur des fees entre créateur et coffre.
-6. **How to buy** — Robinhood Chain, le bridge, le DEX. Étapes numérotées, aucune projection.
-7. **Giveaway** — part au pro rata, voir §5 bis.
-8. **FAQ**
-9. **Draft a launch** — le créateur de token local, voir §0 bis. Nav : « Make one ».
-10. **Community** — lien X.
-11. **Footer** — la bande « Keystone awaits in his vault » : liens sociaux, adresse du contrat, disclaimer,
-    attribution, copyright. Voir §0 bis.
 
 ### 5 bis. Giveaway
 
@@ -572,7 +541,8 @@ Trois satellites, lancés **après** PONSFUND, sans compte X propre. Ils servent
 
 ## 10. Points ouverts
 
-1. ~~Attribution CC-BY-4.0 du coffre~~ **fait** : dans le footer, avec les liens vers l'auteur et la licence.
+1. ~~Attribution CC-BY-4.0 du coffre~~ **annulé le 2026-09-09** : le propriétaire indique que l'attribution
+   était fausse, le crédit a été retiré du footer. Voir §« Le coffre 3D — provenance ».
 2. ~~Poids du coffre~~ **fait** : 5,3 Mo → 651 Ko (`gltf-transform optimize`, textures WebP 1024). Draco
    volontairement écarté : son décodeur se télécharge depuis un CDN externe au chargement de la page.
 3. ⚠️ **Date du premier giveaway** : `vault.firstPayoutAt` est provisoirement au **2026-09-13T18:00:00Z**,

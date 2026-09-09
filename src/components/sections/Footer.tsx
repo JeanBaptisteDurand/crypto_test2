@@ -17,9 +17,9 @@ function XIcon({ className = "" }: { className?: string }) {
  * ends where it started. Same preset, same transparency-step reveal, one image swapped -- the picture is
  * never fully hidden and never fully exposed.
  *
- * Everything a footer owes the reader lives inside it: the social links, the contract address, the
- * model attribution and the copyright. The lower half of the band fades to the page colour so all of
- * that sits on a readable ground while Keystone keeps the top half.
+ * Everything a footer owes the reader lives inside it: the social links, the contract address and
+ * the copyright. The lower half of the band fades to the page colour so all of that sits on a
+ * readable ground while Keystone keeps the top half.
  *
  * ⚠ THE RISK DISCLAIMER WAS REMOVED ON THE OWNER'S EXPLICIT INSTRUCTION (2026-09-08). It said the
  * token has no intrinsic value, that the vault may hold nothing, that you can lose everything, and
@@ -27,10 +27,13 @@ function XIcon({ className = "" }: { className?: string }) {
  * so this is a deliberate override of that rule and not an oversight -- do not re-add it without
  * asking, and do not remove this note, which is the only remaining trace of the decision.
  *
- * ⛔ THE MODEL ATTRIBUTION BELOW IS NOT OPTIONAL. The chest is CC-BY-4.0 and BRIEF.md §"Le coffre 3D"
- * records that attribution is mandatory and must be visible on the published site. Removing it while
- * still shipping the model is a licence violation. The way to drop the credit is to drop the model:
- * set `hero.mascot: "coin"` for the procedural coin, or supply a model we own.
+ * ⚠ A CC-BY-4.0 credit to Matt Harris stood here and was removed on 2026-09-09, because the owner
+ * says the attribution is simply wrong -- the chest is not that model. Crediting someone who did not
+ * make the asset is its own error, so the line went. BRIEF.md §"Le coffre 3D" still described the
+ * Sketchfab provenance and is corrected to match; do not re-add the credit from that section.
+ *
+ * ⚠ If a third-party model is ever dropped into `assets/user/`, check its licence before shipping
+ * it: this footer no longer carries an attribution slot, and a CC-BY asset would need one.
  */
 export default function Footer() {
   const t = config.token;
@@ -127,27 +130,6 @@ export default function Footer() {
 
           <div className="flex flex-col gap-6 md:flex-row md:justify-end">
             <div className="flex flex-col gap-3 text-[11px] leading-relaxed text-muted md:items-end md:text-right">
-              <p className="max-w-xs">
-                Treasure chest model by{" "}
-                <a
-                  href="https://sketchfab.com/MattHarris86"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-accent3 underline"
-                >
-                  Matt Harris
-                </a>
-                , licensed{" "}
-                <a
-                  href="https://creativecommons.org/licenses/by/4.0/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-accent3 underline"
-                >
-                  CC BY 4.0
-                </a>
-                .
-              </p>
               <p>
                 © {new Date().getFullYear()} {t.name}. Deployed on {CHAINS[t.chain].label}.
               </p>
