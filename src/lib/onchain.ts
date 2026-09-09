@@ -33,6 +33,13 @@ const CACHE_KEY = "ponsfund:chain-launches";
 const CACHE_TTL = 5 * 60 * 1000;
 /** How many of the newest launches the board shows. The register can hold more. */
 const PAGE = 48;
+/**
+ * The cap on a logo URL read off a token. Long enough for an IPFS gateway path.
+ *
+ * ⛔ Separate from the 64-character cap on names and symbols, because sharing one silently cut the
+ * `.png` off every URL this site uploads. See `str`.
+ */
+const URL_MAX = 512;
 
 const LAUNCHPAD_ABI = parseAbi([
   "struct Launch { address token; address curve; address launcher; address pairToken; uint64 at; }",
@@ -149,7 +156,7 @@ export async function fetchChainLaunches(): Promise<ChainLaunch[]> {
       // launches says less than no tile, and it is the shape a wrong address produces.
       if (!name || !symbol) return;
 
-      const logo = str(at(2));
+      const logo = str(at(2), URL_MAX);
       const totalSupply = big(at(3));
       const reserves = at(4) as readonly [bigint, bigint] | undefined;
       const record = at(5) as { phase?: number } | undefined;
@@ -193,9 +200,22 @@ export async function fetchChainLaunches(): Promise<ChainLaunch[]> {
   }
 }
 
-function str(v: unknown): string {
-  return typeof v === "string" ? v.trim().slice(0, 64) : "";
+/**
+ * A string read off a token, bounded.
+ *
+ * ⛔⛔ THE CAP IS PER FIELD, AND THAT IS NOT A DETAIL. One shared 64-character cap silently cut the
+ * `.png` off every logo URL this site uploads -- ours are 68 characters
+ * (`https://www.ponsfund.tech/logos/` + a 32-char hash + `.png`) -- so every image a launcher
+ * dropped in the form rendered broken on the board and on its token page. Nothing errored: the
+ * `<img>` simply pointed at a URL that 404s.
+ *
+ * The cap exists because these strings are written by whoever launched the token: a 10 KB name would
+ * wreck the layout of a table row. So it stays, per field, at a length each field can actually need.
+ */
+function str(v: unknown, max = 64): string {
+  return typeof v === "string" ? v.trim().slice(0, max) : "";
 }
+
 
 function big(v: unknown): bigint | null {
   return typeof v === "bigint" ? v : null;
